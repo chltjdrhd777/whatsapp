@@ -1,7 +1,36 @@
 import Chat from "components/Chat";
 import Sidebar from "components/Sidebar";
+import { useEffect, useState } from "react";
+import Pusher from "pusher-js";
+import instance from "./axios";
 
 function App() {
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    instance.get("/messages/sync").then((response) => {
+      setMessages(response.data);
+    });
+  }, []);
+  console.log(messages);
+
+  useEffect(() => {
+    const pusher = new Pusher("5bd74e8e8a0bd4d2129e", {
+      cluster: "eu",
+    });
+
+    const channel = pusher.subscribe("messages");
+    channel.bind("inserted", (newMessage) => {
+      alert(JSON.stringify(newMessage));
+      setMessages([...messages, newMessage]);
+    });
+
+    return () => {
+      channel.unbind_all();
+      channel.unsubscribe();
+    };
+  }, [messages]);
+
   return (
     <div
       className="App"
@@ -24,7 +53,7 @@ function App() {
         }}
       >
         <Sidebar />
-        <Chat />
+        <Chat messages={messages} />
       </div>
     </div>
   );

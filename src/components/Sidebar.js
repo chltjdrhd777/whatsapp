@@ -96,6 +96,7 @@ const SidebarDiv = styled.div`
         border: none;
         outline: none;
         padding: 10px;
+        background-color: transparent;
       }
 
       & > svg {
